@@ -1,8 +1,8 @@
-const RESTAURANTS = 'restaurants';
+const RESTAURANTS = 'restaurant';
 const BARS = 'bar';
 const STORES = 'store';
 const ESHTABLISHEMENTS = 'eshtablishments';
-const HOTELS = 'hotel';
+const HOTELS = 'hotels';
 const HOSPITALS = 'hospital';
 
 export {

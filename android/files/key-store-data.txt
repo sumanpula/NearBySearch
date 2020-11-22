@@ -1,0 +1,10 @@
+applicationId "com.nearbysearch"
+version 1.0
+version code 1
+
+Dated: 15/11/2020
+
+Initial release.
+
+sumanpula,
+Sum@n1729

@@ -33,6 +33,8 @@ const ListTiles = (navigation) => {
   }
 
     const onTitlePress = (data) => {
+        // check network state
+        getNetState();
         // console.log('tile press', data, navigation.navigation.navigate);
         if (isConnected) {
             navigation.navigation.navigate('ResultsScreen', { type: data.type });

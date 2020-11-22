@@ -8,6 +8,9 @@ import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.modules.AppPackage;
+import com.modules.LocationPackage;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -27,6 +30,7 @@ public class MainApplication extends Application implements ReactApplication {
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // packages.add(new MyReactNativePackage());
             packages.add(new LocationPackage());
+            packages.add(new AppPackage());
           return packages;
         }
 

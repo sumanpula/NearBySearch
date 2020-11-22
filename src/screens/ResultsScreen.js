@@ -8,7 +8,8 @@ import {
     TouchableHighlight,
     TextInput,
     Image,
-    Button,
+    TouchableOpacity,
+    ActivityIndicator,
 } from 'react-native';
 import { getNearestPlaces } from '../network/APIUtils';
 import { baseUrlPlaces, apiKey } from '../utils/URLConstants'
@@ -22,25 +23,25 @@ import {
   HOTELS,
   HOSPITALS,
 } from '../utils/AppConstants';
-
+const loading = require('../icons/dish.png');
 
 const hint = 'Search for near by ';
-
+let type = '';
 class ResultsScreen extends Component {
-  static navigationOptions = {
-    headerTitle: "User Index",
-    headerRight: <Button title="Info" onPress={()=> alert('right button')} />,
-};
-    constructor(props) {
+ constructor(props) {
         super(props);
         this.state = {
             list: [],
+            noDataText: 'Please type to search nearby ',
+            isImageLoading: false,
         };
+        type = getType(this.props.route.params.type);
+        console.log('suman type', type);
+        this.getInitialList();
         this.changeHeader()
     }
 
     changeHeader = () => {
-      const type = getType(this.props.route.params.type);
       const icon = getIcon(this.props.route.params.type);
       // Function to change navigation options
       this.props.navigation.setOptions({
@@ -64,16 +65,43 @@ class ResultsScreen extends Component {
         this.setState({ list });
     }
 
+    getInitialList = () => {
+      getNearestPlaces('', type, (response) => {
+        // console.log('suman data ', response.error);
+        if (response.code > 200) {
+          if (response.error !== '') {
+            if (response.error === 'Network request failed') {
+              alert('Please Connect to Working Internet!');
+            } else {
+              alert('Something wrong, try again later');
+            }
+          }
+        }
+        this.updateList(response.data);
+      });
+    }
+
     fetchRestaurants = keyWord => {
-        const type = this.props.route.params.type;
         // console.log('suman type ', type)
         // get location
-        if (keyWord.length > 0) {
+        if (keyWord.length >= 3) {
+          this.setState({ noDataText: 'Please type to search nearby '});
           // console.log('fetchRestaurants text ', keyWord);
           getNearestPlaces(keyWord, type, (response) => {
-            // console.log('suman data ', response);
+            // console.log('suman data ', response.error);
+            if (response.code > 200) {
+              if (response.error !== '') {
+                if (response.error === 'Network request failed') {
+                  alert('Please Connect to Working Internet!');
+                } else {
+                  alert('Something wrong, try again later');
+                }
+              }
+            }
             this.updateList(response.data);
           });
+        } else {
+          this.setState({ noDataText: 'Please type at least 3 characters' });
         }
       };
 
@@ -87,8 +115,12 @@ class ResultsScreen extends Component {
         fetchRestaurants(searchText);
       };
 
+    onListItemClick = (formattedData) => {
+      this.props.navigation.navigate('DetailsView', {formattedData});
+    }
+
     renderList = ({item}) => {
-        // console.log('ListItem ', item);
+        console.log('ListItem ', item);
         const data = item;
         const {
           name,
@@ -97,7 +129,10 @@ class ResultsScreen extends Component {
           user_ratings_total,
           rating,
           icon,
-        } = data;
+          opening_hours,
+          place_id,
+          reference,
+        } = item;
         // console.log('suman ListItem ', data);
         let imageUri = data.photos && data.photos.length > 0 ? data.photos[0] : data.icon;
         const photo_reference = imageUri.photo_reference;
@@ -109,9 +144,31 @@ class ResultsScreen extends Component {
         const price = price_level ? price_level : 1;
         const ratings = user_ratings_total ? user_ratings_total : 1;
         const userRatings = rating ? rating : 1;
+        const openNow = opening_hours && opening_hours.open_now ? 'Open now' : 'Closed';
+        const formattedData = {
+          name,
+          vicinity,
+          price_level,
+          user_ratings_total,
+          rating,
+          icon,
+          price,
+          userRatings,
+          openNow,
+          place_id,
+          reference,
+        };
         return (
-          <View style={styles.itemStyleMain}>
-            <Image source={{uri: imageUri}} style={styles.imageStyle} />
+          <TouchableOpacity
+            style={styles.itemStyleMain}
+            onPress={() => this.onListItemClick(formattedData)}
+            >
+             <Image
+              loadingIndicatorSource={loading}
+              source={{uri: imageUri}} style={styles.imageStyle}
+              onLoadStart={() => this.showLoading(imageUri, true)}
+              onLoad={() => this.showLoading(imageUri, false)}
+            />
             <View style={styles.itemsStyle}>
               <Text style={styles.itemNameStyle}>{name}</Text>
               <Text style={styles.itemPlaceStyle}>{vicinity}</Text>
@@ -122,13 +179,30 @@ class ResultsScreen extends Component {
             <View style={styles.ratingViewStyle}>
               <Text style={styles.ratingTextStyle}>{userRatings}</Text>
             </View>
-          </View>
+          </TouchableOpacity>
         );
     };
+
+    showLoading = (imageUri, isImageLoading) => {
+     console.log('suman isImageLoading', isImageLoading)
+      return(
+        isImageLoading ?
+        (
+          <View style={styles.imageStyle}>
+          <ActivityIndicator size="large" color="#FFD700"/>
+        </View>
+        ) : (
+          <View style={styles.imageStyle}>
+          <Text style={{ color: 'red' }}>Suman</Text>
+          </View>
+        )
+      );
+    }
 
   render() {
       const {
         list,
+        noDataText,
       } = this.state;
     const type = getType(this.props.route.params.type);
     return(
@@ -154,7 +228,7 @@ class ResultsScreen extends Component {
               renderItem={this.renderList}
             />
           ) : (
-            <Text style={styles.noDataTextStyle}>{`Please type to search nearby ${type}`}</Text>
+            <Text style={styles.noDataTextStyle}>{`${noDataText} ${type}`}</Text>
           )} 
         </View>
     )

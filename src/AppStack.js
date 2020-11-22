@@ -2,8 +2,7 @@ import React from 'react';
 import { View, Text, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { ShowListItems } from './ShowListItems';
-import { HomeScreen, ResultsScreen } from './screens';
+import { HomeScreen, ResultsScreen, DetailsView } from './screens';
 import { close, search } from '../src/icons';
 
 const Stack = createStackNavigator();
@@ -40,6 +39,21 @@ const AppStack = () => {
             },
           }}
         component={ResultsScreen}
+        >
+        </Stack.Screen>
+        <Stack.Screen
+        name="DetailsView"
+        options={{
+            title: 'Details',
+            headerStyle: {
+              backgroundColor: '#f4511e',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+        component={DetailsView}
         >
         </Stack.Screen>
     </Stack.Navigator>

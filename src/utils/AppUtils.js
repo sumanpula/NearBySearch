@@ -35,15 +35,15 @@ const getIcon = (type) => {
 const getType = (type) => {
     switch(type) {
         case RESTAURANTS:
-        return 'restaurants';
+        return RESTAURANTS;
         case STORES:
-        return 'stores';
+        return STORES;
         case BARS:
-        return 'bars';
+        return BARS;
         case HOSPITALS:
-        return 'hospitals';
+        return HOSPITALS;
         case HOTELS:
-        return 'hotels';
+        return HOTELS;
     }
     return 'location';
 }
